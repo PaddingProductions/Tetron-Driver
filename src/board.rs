@@ -1,31 +1,30 @@
 use tetron::{Piece, Move, Field};
 use tetron::field::{PIECE_MAP, reverse_bin};
+use crate::colors::*;
 use std::fmt;
-
-const BG_COLOR_RESET: &str = "\x1b[0m";
-macro_rules! piece_color {
-    ($p: expr) => {
-        match $p {
-            Piece::None => "\x1b[47;1m", // white
-            Piece::J => "\x1b[48;5;208m", // bright red / orange
-            Piece::L => "\x1b[48;5;20m", // blue
-            Piece::S => "\x1b[48;5;9m", // red
-            Piece::Z => "\x1b[48;5;46m", // green
-            Piece::T => "\x1b[45;1m", // magenta
-            Piece::I => "\x1b[48;5;51m", // cyan
-            Piece::O => "\x1b[48;5;226m", // yellow
-        }
-    };
-}
 
 pub struct Board {
     pub m: [[Piece; 10]; 20]
 }
 
 impl Board {
-    pub fn new () -> Self {
-        Self {
-            m: [[Piece::None; 10]; 20],
+    pub fn new (field: Option<&Field>) -> Self {
+        if let Some(field) = field {
+            let mut m = [[Piece::None; 10]; 20];
+            for y in 0..20 {
+                for x in 0..10 {
+                    if field.m[y] & (1 << x) > 0 {
+                        m[y][x] = Piece::J;
+                    }
+                }
+            }
+            Self {
+                m
+            }
+        } else {
+            Self {
+                m: [[Piece::None; 10]; 20],
+            }
         }
     }
 
@@ -53,7 +52,7 @@ impl Board {
             // The bits representing a single row of the piece map
             let shift: u8 = (n * (n - 1 - y)) as u8;
             let bitseg: u16 = reverse_bin( (( map & (mask << shift) ) >> shift) as u16 , n as u8 );
-            //println!("c_x: {c_x}, map: {:09b}, bitseg: {:05b}", PIECE_MAP[*p as usize][m.r as usize], bitseg);
+            //dev_log!("c_x: {c_x}, map: {:09b}, bitseg: {:05b}", PIECE_MAP[*p as usize][m.r as usize], bitseg);
 
             // If empty row on piece map
             if bitseg == 0 {
@@ -73,7 +72,7 @@ impl Board {
             }
             // Shift according to c_x
             let bitseg = if c_x > 0 { bitseg << c_x } else { bitseg >> -c_x };
-            //println!("c_x: {}, final bitseg: {:05b}", c_x, bitseg);
+            //dev_log!("c_x: {}, final bitseg: {:05b}", c_x, bitseg);
             // If out of board on right edge
             if bitseg > (1 << 10)-1 {
                 panic!("@ Field.apply_move: out of board on right edge");
@@ -111,7 +110,7 @@ impl fmt::Display for Board {
             for x in 0..10 {
                 if self.m[y][x] != Piece::None {
                     let c = piece_color!(self.m[y][x]);
-                    write!(f, "{}  {}", c, BG_COLOR_RESET)?;
+                    write!(f, "{}  {}", c, RST)?;
                 } else {
                     write!(f, ". ")?;
                 }
