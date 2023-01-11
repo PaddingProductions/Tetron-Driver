@@ -1,12 +1,13 @@
 use tetron::*;
 use rand::Rng;
 use std::time::{Instant};
+use std::{thread, time::Duration};
 use std::io;
 use crate::board::*;
 use crate::colors::*;
 
 
-fn draw (bag: &mut Vec<Piece>) -> Piece {
+pub fn draw (bag: &mut Vec<Piece>) -> Piece {
     let i = rand::thread_rng().gen_range(0..bag.len());
     let p = bag.remove(i);
     if bag.is_empty() {
@@ -20,6 +21,8 @@ fn draw (bag: &mut Vec<Piece>) -> Piece {
     }
     p
 }
+
+
 
 pub fn sandbox_bench_fn () -> u128 {
     const ITERS: i32 = 100;
@@ -39,7 +42,7 @@ pub fn sandbox_bench_fn () -> u128 {
 
         // Solve & Bench
         let start = Instant::now();        
-        if let Some(out) = solve(&state, 1) {
+        if let Some(out) = solve(&state, 1, None) {
             state = out.0;
         } else {
             state = State::new();
@@ -52,7 +55,7 @@ pub fn sandbox_bench_fn () -> u128 {
     avg_dt
 }
 
-pub fn run () {
+pub fn run (mode: Option<EvaluatorMode>) {
     let mut state = State::new();
     
     state.field.m = [   
@@ -93,7 +96,7 @@ pub fn run () {
 
         // Solve & Bench
         let start = Instant::now();        
-        if let Some(out) = solve(&state, 2) {
+        if let Some(out) = solve(&state, 2, mode) {
             let dt = start.elapsed().as_micros();
             avg_dt = if avg_dt == 0 {dt} else {(avg_dt + dt) / 2};
 
@@ -115,6 +118,7 @@ pub fn run () {
             println!("{BLD}No results found, game over.{RST}");
             break;
         }
+        /* 
         // Read user input
         let mut buffer = String::new();
         io::stdin().read_line(&mut buffer).unwrap();
@@ -123,10 +127,12 @@ pub fn run () {
             "q" => break,
             _ => continue,
         }
+        */
+        thread::sleep(Duration::from_millis(300));
     }
 }
 
-fn render (board: &Board, state: &State) {
+pub fn render (board: &Board, state: &State) {
     for y in 0..20 {
         for x in 0..10 {
             if board.m[y][x] != Piece::None {

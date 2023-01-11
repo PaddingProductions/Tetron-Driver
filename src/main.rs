@@ -1,15 +1,18 @@
 mod sandbox;
 mod board;
+mod exams;
 
 use tetron::*;
 
 use std::collections::{VecDeque};
 use std::time::Instant;
 
+pub use board::Board;
+
 pub mod colors {
     pub const RST: &str = "\x1b[0m";
     pub const BLD: &str = "\x1b[1m";
-
+    pub const HLT: &str = "\x1b[48;5;226m";
     macro_rules! piece_color {
         ($p: expr) => {
             match $p {
@@ -61,12 +64,19 @@ fn gen_moves_dummy_fn () {
 
     let map = gen_moves(&state);
     let sum: u32 = map.iter().map(|(field, mov)| mov.x as u32).sum::<u32>();
-    println!("{}", sum);
+    print!("{}", sum);
 }
 
 fn main() {
-    println!("\x1b[43;1mStarting sandbox..\x1b[0m");
-    sandbox::run();    
+
+    exams::cheese_exam(50, 18, false);
+
+    //println!("\x1b[43;1mStarting sandbox..\x1b[0m");
+    //sandbox::run();    
+    
     //let out = sandbox_bench_fn();
     //println!("sandbox bench avg_dt: {BLD}{}{RST}", out);
+
+    //let out = bench(255, gen_moves_dummy_fn);
+    //println!("\ngen_moves() bench avg_dt: {BLD}{}{RST}", out);
 }
