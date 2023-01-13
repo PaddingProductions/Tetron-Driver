@@ -128,7 +128,7 @@ pub fn run (mode: Option<EvaluatorMode>) {
             _ => continue,
         }
         */
-        thread::sleep(Duration::from_millis(300));
+        //thread::sleep(Duration::from_millis(300));
     }
 }
 

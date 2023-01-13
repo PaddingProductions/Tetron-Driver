@@ -5,6 +5,7 @@ mod exams;
 use tetron::*;
 
 use std::collections::{VecDeque};
+use std::io::{self};
 use std::time::Instant;
 
 pub use board::Board;
@@ -68,15 +69,37 @@ fn gen_moves_dummy_fn () {
 }
 
 fn main() {
+    println!("{HLT}==={{ Tetron CLI }}==={RST}");
+    println!("\n{BLD}Commands:{RST}");
+    println!("- sandbox [mode, opts: atk, ds, norm | norm]");
+    println!("- cheese_exam [iter, num | 10] [lines, num | 18] [log, opts: log]");
 
-    exams::cheese_exam(50, 18, false);
+    let mut buf = String::new();
+    loop {
+        io::stdin().read_line(&mut buf).expect("Error on STDIN.");
+        buf.pop();
 
-    //println!("\x1b[43;1mStarting sandbox..\x1b[0m");
-    //sandbox::run();    
-    
-    //let out = sandbox_bench_fn();
-    //println!("sandbox bench avg_dt: {BLD}{}{RST}", out);
-
-    //let out = bench(255, gen_moves_dummy_fn);
-    //println!("\ngen_moves() bench avg_dt: {BLD}{}{RST}", out);
+        let args: Vec<&str> = buf.split(" ").collect();
+        
+        println!("command: {buf}. args: {:?}", args);
+        match args[0] {
+            "sandbox" => {
+                let mode = if args.len() < 2 {EvaluatorMode::Norm} else {match args[1] {
+                    "atk" => EvaluatorMode::Attack,
+                    "ds" => EvaluatorMode::DS,
+                    "norm" => EvaluatorMode::Norm,
+                    _ => EvaluatorMode::Norm,
+                }};
+                sandbox::run(Some(mode));
+            },
+            "cheese_exam" => {
+                let iter = if args.len() > 1 {args[1].parse().unwrap()} else {10};
+                let lines = if args.len() > 2 {args[2].parse().unwrap()} else {18};
+                let log = if args.len() > 3 {args[3] == "log"} else {false};
+                exams::cheese_exam(iter, lines, log);
+            }
+            _ => continue
+        }
+        break;
+    }
 }
