@@ -1,12 +1,9 @@
-mod sandbox;
 mod board;
-mod exams;
+mod sim;
 
 use tetron::*;
 
-use std::collections::{VecDeque};
-use std::io::{self};
-use std::time::Instant;
+use std::io;
 
 pub use board::Board;
 
@@ -43,39 +40,15 @@ pub mod colors {
 }
 use crate::colors::*;
 
-/*
-    Benchmarking function, for tests.
- */
-fn bench (iter: u8, f: fn()) -> u128 {
-    let mut avg_dt: u128 = 0;
-    for _ in 0..iter {
-        let start = Instant::now();
-        f();
-        let dt = start.elapsed().as_micros();
-        avg_dt = if avg_dt == 0 {dt} else {(avg_dt + dt) / 2}
-    }
-    avg_dt
-}
-
-fn gen_moves_dummy_fn () {
-    let mut state: State = State::new();
-    state.pieces = VecDeque::new();
-    state.pieces.push_back(Piece::L);
-    state.pieces.push_back(Piece::T);
-
-    let map = gen_moves(&state);
-    let sum: u32 = map.iter().map(|(field, mov)| mov.x as u32).sum::<u32>();
-    print!("{}", sum);
-}
-
 fn main() {
     println!("{HLT}==={{ Tetron CLI }}==={RST}");
     println!("\n{BLD}Commands:{RST}");
-    println!("- sandbox [mode, opts: atk, ds, norm | norm]");
-    println!("- cheese_exam [iter, num | 10] [lines, num | 18] [log, opts: log]");
+    println!("- sandbox <mode: [{BLD}norm{RST}, atk, ds]> <(num)lines =40>");
+    println!("- cheese_exam <(num)iters {BLD}40{RST}> <(num)lines =40> <opts: [log]>");
+    println!("- attack_exam <(num)iters {BLD}5{RST}> <(num)pieces =100> <opts: [log]>");
 
-    let mut buf = String::new();
     loop {
+        let mut buf = String::new();
         io::stdin().read_line(&mut buf).expect("Error on STDIN.");
         buf.pop();
 
@@ -90,13 +63,20 @@ fn main() {
                     "norm" => EvaluatorMode::Norm,
                     _ => EvaluatorMode::Norm,
                 }};
-                sandbox::run(Some(mode));
+                let iters = if args.len() < 3 {100} else {args[2].parse().unwrap()};
+                sim::sandbox_run(iters, Some(mode));
             },
             "cheese_exam" => {
                 let iter = if args.len() > 1 {args[1].parse().unwrap()} else {10};
                 let lines = if args.len() > 2 {args[2].parse().unwrap()} else {18};
                 let log = if args.len() > 3 {args[3] == "log"} else {false};
-                exams::cheese_exam(iter, lines, log);
+                sim::cheese_exam(iter, lines, log);
+            }
+            "attack_exam" => {
+                let iter = if args.len() > 1 {args[1].parse().unwrap()} else {5};
+                let lines = if args.len() > 2 {args[2].parse().unwrap()} else {40};
+                let log = if args.len() > 3 {args[3] == "log"} else {false};
+                sim::attack_exam(iter, lines, log);
             }
             _ => continue
         }
