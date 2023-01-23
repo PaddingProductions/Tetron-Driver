@@ -43,9 +43,9 @@ use crate::colors::*;
 fn main() {
     println!("{HLT}==={{ Tetron CLI }}==={RST}");
     println!("\n{BLD}Commands:{RST}");
-    println!("- sandbox <mode: [{BLD}norm{RST}, atk, ds]> <(num)lines =40>");
-    println!("- cheese_exam <(num)iters {BLD}40{RST}> <(num)lines =40> <opts: [log]>");
-    println!("- attack_exam <(num)iters {BLD}5{RST}> <(num)pieces =100> <opts: [log]>");
+    println!("=> sandbox <mode: [{BLD}norm{RST}, atk, ds]> <(num)pieces ={BLD}100{RST}>");
+    println!("=> cheese_exam <(num)iters ={BLD}40{RST}> <(num)lines ={BLD}40{RST}> <opts: [log]>");
+    println!("=> attack_exam <(num)iters ={BLD}5{RST}> <(num)pieces ={BLD}100{RST}> <opts: [log]>");
 
     loop {
         let mut buf = String::new();
@@ -74,7 +74,7 @@ fn main() {
             }
             "attack_exam" => {
                 let iter = if args.len() > 1 {args[1].parse().unwrap()} else {5};
-                let lines = if args.len() > 2 {args[2].parse().unwrap()} else {40};
+                let lines = if args.len() > 2 {args[2].parse().unwrap()} else {100};
                 let log = if args.len() > 3 {args[3] == "log"} else {false};
                 sim::attack_exam(iter, lines, log);
             }

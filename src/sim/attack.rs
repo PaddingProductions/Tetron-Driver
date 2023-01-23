@@ -79,7 +79,7 @@ pub fn attack_exam (iter: usize, pieces: usize, log: bool) {
         let apm: f64 = atk as f64 / (total_dt / 60.0) as f64;
         let pps: f64 = pieces as f64 / total_dt as f64;
 
-        apm_res.0 = if apm_res.0 == 0.0 {apm as f64} else {(apm_res.0 + atk as f64) / 2.0};
+        apm_res.0 = if apm_res.0 == 0.0 {apm as f64} else {(apm_res.0 + apm as f64) / 2.0};
         apm_res.1 = apm_res.1.max(apm);
         apm_res.2 = apm_res.2.min(apm);
 
@@ -98,7 +98,7 @@ pub fn attack_exam (iter: usize, pieces: usize, log: bool) {
     let app_res = 
         (atk_res.0 as f32 / pieces as f32, apm_res.1  as f32/ pieces as f32, apm_res.2 as f32/ pieces as f32);
     println!("{BLD}=== Final Results ==={RST}:");
-    println!("avg apm : {HLT}{:.2}{RST}, best: {HLT}{:.2}{RST}, worst: {BLD}{:.2}{RST}", app_res.0, app_res.1, app_res.2);
+    println!("avg app : {HLT}{:.2}{RST}, best: {HLT}{:.2}{RST}, worst: {BLD}{:.2}{RST}", app_res.0, app_res.1, app_res.2);
     println!("avg apm : {HLT}{:.2}{RST}, best: {HLT}{:.2}{RST}, worst: {BLD}{:.2}{RST}", apm_res.0, apm_res.1, apm_res.2);
     println!("avg atk : {HLT}{:.2}{RST}, best: {HLT}{}{RST}, worst: {BLD}{}{RST}", atk_res.0, atk_res.1, atk_res.2);
     println!("avg time: {HLT}{:.2}{RST}, worst: {HLT}{:.2}{RST}, best: {BLD}{:.2}{RST}", time_res.0, time_res.1, time_res.2);

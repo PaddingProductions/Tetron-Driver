@@ -46,6 +46,8 @@ pub fn sandbox_run (iters: u32, mode: Option<EvaluatorMode>) {
     let mut board = Board::new(Some(&state.field));
     let mut bag = vec![Piece::J, Piece::L, Piece::S, Piece::Z, Piece::T, Piece::I, Piece::O];
     
+    let mut atks: u32 = 0;
+    let mut total_dt = 0.0;
     let mut avg_dt = 0;
     while state.pieces.len() < 6 {
         state.pieces.push_back(super::draw(&mut bag));
@@ -62,10 +64,14 @@ pub fn sandbox_run (iters: u32, mode: Option<EvaluatorMode>) {
         let start = Instant::now();        
         if let Some(out) = solve(&state, 3, mode) {
             let dt = start.elapsed().as_micros();
+            total_dt += dt as f64 / 1_000_000.0;
             avg_dt = if avg_dt == 0 {dt} else {(avg_dt + dt) / 2};
 
             println!("Time consumed: {}{}{}us", BLD, dt, RST);
             println!("Avg benchmark: {}{}{}us", BLD, avg_dt, RST);
+
+            // Attack tracing
+            atks += out.0.props.atk as u32;
 
             // Apply move to colored board
             board.apply_move(&out.1, &state.pieces[0], if state.hold == Piece::None {&state.pieces[1]} else {&state.hold});
@@ -84,6 +90,10 @@ pub fn sandbox_run (iters: u32, mode: Option<EvaluatorMode>) {
         }
         thread::sleep(Duration::from_millis(SANDBOX_DELAY));
     }
+    println!("=== Results ==="); 
+    println!("apm: {:.2}, attacks: {}", atks as f64 / (total_dt as f64 / 60.0), atks);
+    println!("pps: {:.2}, pieces: {}", (iters as f64 / total_dt as f64), iters);
+
     tetron::print_bench_result();
 }
 
