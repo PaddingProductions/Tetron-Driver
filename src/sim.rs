@@ -7,14 +7,17 @@ use rand::Rng;
 mod cheese;
 mod attack;
 mod sandbox;
+mod backfire;
+pub mod battle;
 
 pub use sandbox::sandbox_run;
 pub use cheese::cheese_exam;
 pub use attack::attack_exam;
+pub use backfire::backfire_exam;
+pub use battle::battle;
+
 
 pub fn draw (bag: &mut Vec<Piece>) -> Piece {
-    let i = rand::thread_rng().gen_range(0..bag.len());
-    let p = bag.remove(i);
     if bag.is_empty() {
         bag.push(Piece::J);
         bag.push(Piece::L);
@@ -24,11 +27,13 @@ pub fn draw (bag: &mut Vec<Piece>) -> Piece {
         bag.push(Piece::I);
         bag.push(Piece::O);
     }
+    let i = rand::thread_rng().gen_range(0..bag.len());
+    let p = bag.remove(i);
     p
 }
 
 pub fn gen_garbage (field: &mut Field, board: &mut Board, lines: usize) {
-    let lines = lines.min(20);
+    let lines = lines.min(10);
     static mut PREV: u8 = 0;
 
     let mut rng = rand::thread_rng();
@@ -46,9 +51,9 @@ pub fn gen_garbage (field: &mut Field, board: &mut Board, lines: usize) {
     }
     for y in (20-lines)..20 {
         field.m[y] = nrow;
-    }
-    for x in 0..10 {
-        board.m[19][x] = if nrow & 1 << x > 0 {Piece::L} else {Piece::None};
+        for x in 0..10 {
+            board.m[y][x] = if nrow & 1 << x > 0 {Piece::L} else {Piece::None};
+        }
     }
 }
 pub fn render (board: &Board, state: &State) {

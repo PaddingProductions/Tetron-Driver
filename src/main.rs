@@ -25,17 +25,6 @@ pub mod colors {
             }
         };
     }
-    macro_rules! color {
-        (white)   => {"\x1b[47;1m"}; // white
-        (orange)  => {"\x1b[41;1m"}; // bright red / orange
-        (blue)    => {"\x1b[44;1m"}; // blue
-        (red)     => {"\x1b[41;1m"}; // red
-        (green)   => {"\x1b[42;1m"}; // green
-        (magenta) => {"\x1b[45;1m"}; // magenta
-        (cyan)    => {"\x1b[46;1m"}; // cyan
-        (yellow)  => {"\x1b[43;1m"}; // yellow
-    }
-    pub(crate) use color;
     pub(crate) use piece_color;
 }
 use crate::colors::*;
@@ -46,16 +35,31 @@ fn main() {
     println!("=> sandbox <mode: [{BLD}norm{RST}, atk, ds]> <(num)pieces ={BLD}100{RST}>");
     println!("=> cheese_exam <(num)iters ={BLD}40{RST}> <(num)lines ={BLD}40{RST}> <opts: [log]>");
     println!("=> attack_exam <(num)iters ={BLD}5{RST}> <(num)pieces ={BLD}100{RST}> <opts: [log]>");
+    println!("=> backfire_exam <(num)iters ={BLD}2{RST}> <(num)pieces ={BLD}100{RST}> <opts: [{BLD}log{RST}]>");
 
     loop {
         let mut buf = String::new();
         io::stdin().read_line(&mut buf).expect("Error on STDIN.");
         buf.pop();
 
-        let args: Vec<&str> = buf.split(" ").collect();
+        
+        let (flags, args) = {
+            let v: Vec<&str> = buf.split(" ").collect();
+            let mut flags = vec![];
+            let mut args = vec![];
+            for s in v {
+                if s.starts_with('-') { flags.push(s); }
+                else { args.push(s); }
+            }
+            (flags, args)
+        };
         
         println!("command: {buf}. args: {:?}", args);
         match args[0] {
+            "vs" => {
+                let mode = if flags.contains(&"-t") { sim::battle::Mode::TurnBased } else { sim::battle::Mode::Norm };
+                sim::battle(sim::battle::Mode::TurnBased);
+            }
             "sandbox" => {
                 let mode = if args.len() < 2 {EvaluatorMode::Norm} else {match args[1] {
                     "atk" => EvaluatorMode::Attack,
@@ -69,14 +73,20 @@ fn main() {
             "cheese_exam" => {
                 let iter = if args.len() > 1 {args[1].parse().unwrap()} else {10};
                 let lines = if args.len() > 2 {args[2].parse().unwrap()} else {18};
-                let log = if args.len() > 3 {args[3] == "log"} else {false};
+                let log = flags.contains(&"-l");
                 sim::cheese_exam(iter, lines, log);
             }
             "attack_exam" => {
                 let iter = if args.len() > 1 {args[1].parse().unwrap()} else {5};
                 let lines = if args.len() > 2 {args[2].parse().unwrap()} else {100};
-                let log = if args.len() > 3 {args[3] == "log"} else {false};
+                let log = flags.contains(&"-l");
                 sim::attack_exam(iter, lines, log);
+            }
+            "backfire_exam" => {
+                let iter = if args.len() > 1 {args[1].parse().unwrap()} else {2};
+                let lines = if args.len() > 2 {args[2].parse().unwrap()} else {100};
+                let log = flags.contains(&"-l");
+                sim::backfire_exam(iter, lines, log);
             }
             _ => continue
         }

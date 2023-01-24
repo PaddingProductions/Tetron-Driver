@@ -9,6 +9,7 @@ fn run (pieces: usize, log: bool) -> (u32, f32) {
     let mut state = State::new();
     let mut board = Board::new(Some(&state.field));
 
+    let mut inc_garbage: u32 = 0;
     let mut total_atk: u32 = 0;
 
     let mut bag = vec![];
@@ -27,7 +28,7 @@ fn run (pieces: usize, log: bool) -> (u32, f32) {
         
         // Solve & Bench
         let start = Instant::now();        
-        if let Some(out) = solve(&state, 3, Some(EvaluatorMode::Norm)) {
+        if let Some(mut out) = solve(&state, 3, Some(EvaluatorMode::Norm)) {
             // Benching
             let dt = start.elapsed().as_micros();
             total_dt += dt as f32 / 1_000_000.0;
@@ -38,6 +39,14 @@ fn run (pieces: usize, log: bool) -> (u32, f32) {
                 &out.1, &state.pieces[0], 
                 if state.hold == Piece::None {&state.pieces[1]} else {&state.hold}
             );
+            
+            // Spawn backfire 
+            inc_garbage += out.0.props.atk as u32;
+            if out.0.props.atk == 0 && inc_garbage > 0 {
+                super::gen_garbage(&mut out.0.field, &mut board, inc_garbage as usize);
+                inc_garbage -= inc_garbage.min(10);
+            } 
+            
 
             // Log out result
             if log {
@@ -45,14 +54,13 @@ fn run (pieces: usize, log: bool) -> (u32, f32) {
                 println!("Avg benchmark: {}{}{}us", BLD, avg_dt, RST);
                 super::render(&board, &out.0);
             }
-            
+
             // Add to counters
             total_atk += out.0.props.atk as u32;
 
             state.field = out.0.field;
             state.pieces = out.0.pieces;
-            state.hold = out.0.hold;
-
+            state.hold = out.0.hold;            
         } else {
             println!("{BLD}No results found, game over.{RST}");
             break;
@@ -62,8 +70,8 @@ fn run (pieces: usize, log: bool) -> (u32, f32) {
     (total_atk, total_dt)
 }
 
-pub fn attack_exam (iter: usize, pieces: usize, log: bool) {
-    println!("{HLT}--ATTACK EXAM--{RST}");
+pub fn backfire_exam (iter: usize, pieces: usize, log: bool) {
+    println!("{HLT}--BACKFIRE EXAM--{RST}");
     println!("{BLD}--iters: {iter}, pieces: {pieces}--{RST}");
 
     // Results: (average, maximum, minimum)

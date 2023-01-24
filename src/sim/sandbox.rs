@@ -5,12 +5,12 @@ use std::{thread, time::Duration};
 use crate::board::*;
 use crate::colors::*;
 
-
+/*
 pub fn sandbox_bench_fn () -> u128 {
     const ITERS: i32 = 100;
 
     let mut state = State::new();
-    let mut bag = vec![Piece::J, Piece::L, Piece::S, Piece::Z, Piece::T, Piece::I, Piece::O];
+    let mut bag = vec![];
     
     let mut avg_dt = 0;
     while state.pieces.len() < 6 {
@@ -34,6 +34,7 @@ pub fn sandbox_bench_fn () -> u128 {
     }
     avg_dt
 }
+ */
 
 pub fn sandbox_run (iters: u32, mode: Option<EvaluatorMode>) {
     const SANDBOX_DELAY: u64 = 0;
@@ -44,7 +45,7 @@ pub fn sandbox_run (iters: u32, mode: Option<EvaluatorMode>) {
     println!("iters: {:?}", iters);
 
     let mut board = Board::new(Some(&state.field));
-    let mut bag = vec![Piece::J, Piece::L, Piece::S, Piece::Z, Piece::T, Piece::I, Piece::O];
+    let mut bag = vec![];
     
     let mut atks: u32 = 0;
     let mut total_dt = 0.0;

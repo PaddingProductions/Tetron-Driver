@@ -19,7 +19,7 @@ fn run (lines: usize, log: bool) -> (u32, f32, u128) {
         super::gen_garbage(&mut state.field, &mut board, 1);
     }
 
-    let mut bag = vec![Piece::J, Piece::L, Piece::S, Piece::Z, Piece::T, Piece::I, Piece::O];
+    let mut bag = vec![];
     
     let mut avg_dt: u128 = 0;
     let mut total_dt: f32 = 0.0;
