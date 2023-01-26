@@ -1,5 +1,6 @@
 mod board;
 mod sim;
+mod battle;
 
 use tetron::*;
 
@@ -15,10 +16,10 @@ pub mod colors {
         ($p: expr) => {
             match $p {
                 Piece::None => "\x1b[47;1m", // white
-                Piece::J => "\x1b[48;5;208m", // bright red / orange
-                Piece::L => "\x1b[48;5;20m", // blue
-                Piece::S => "\x1b[48;5;9m", // red
-                Piece::Z => "\x1b[48;5;46m", // green
+                Piece::J => "\x1b[48;5;20m", // blue
+                Piece::L => "\x1b[48;5;208m", // bright red / orange
+                Piece::S => "\x1b[48;5;46m", // green
+                Piece::Z => "\x1b[48;5;9m", // red
                 Piece::T => "\x1b[45;1m", // magenta
                 Piece::I => "\x1b[48;5;51m", // cyan
                 Piece::O => "\x1b[48;5;226m", // yellow
@@ -29,6 +30,7 @@ pub mod colors {
 }
 use crate::colors::*;
 
+
 fn main() {
     println!("{HLT}==={{ Tetron CLI }}==={RST}");
     println!("\n{BLD}Commands:{RST}");
@@ -36,6 +38,7 @@ fn main() {
     println!("=> cheese_exam <(num)iters ={BLD}40{RST}> <(num)lines ={BLD}40{RST}> <opts: [log]>");
     println!("=> attack_exam <(num)iters ={BLD}5{RST}> <(num)pieces ={BLD}100{RST}> <opts: [log]>");
     println!("=> backfire_exam <(num)iters ={BLD}2{RST}> <(num)pieces ={BLD}100{RST}> <opts: [{BLD}log{RST}]>");
+    println!("=> vs ## {BLD} LEGACY {RST} ##");
 
     loop {
         let mut buf = String::new();
@@ -57,8 +60,7 @@ fn main() {
         println!("command: {buf}. args: {:?}", args);
         match args[0] {
             "vs" => {
-                let mode = if flags.contains(&"-t") { sim::battle::Mode::TurnBased } else { sim::battle::Mode::Norm };
-                sim::battle(sim::battle::Mode::TurnBased);
+                battle::battle();
             }
             "sandbox" => {
                 let mode = if args.len() < 2 {EvaluatorMode::Norm} else {match args[1] {

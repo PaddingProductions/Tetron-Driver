@@ -8,13 +8,11 @@ mod cheese;
 mod attack;
 mod sandbox;
 mod backfire;
-pub mod battle;
 
 pub use sandbox::sandbox_run;
 pub use cheese::cheese_exam;
 pub use attack::attack_exam;
 pub use backfire::backfire_exam;
-pub use battle::battle;
 
 
 pub fn draw (bag: &mut Vec<Piece>) -> Piece {

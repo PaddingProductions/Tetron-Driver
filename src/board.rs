@@ -3,6 +3,7 @@ use tetron::field::{PIECE_MAP, reverse_bin};
 use crate::colors::*;
 use std::fmt;
 
+#[derive(Clone)]
 pub struct Board {
     pub m: [[Piece; 10]; 20]
 }
@@ -52,7 +53,7 @@ impl Board {
             // The bits representing a single row of the piece map
             let shift: u8 = (n * (n - 1 - y)) as u8;
             let bitseg: u16 = reverse_bin( (( map & (mask << shift) ) >> shift) as u16 , n as u8 );
-            //dev_log!("c_x: {c_x}, map: {:09b}, bitseg: {:05b}", PIECE_MAP[*p as usize][m.r as usize], bitseg);
+            //println!("c_x: {c_x}, map: {:09b}, bitseg: {:05b}\r", PIECE_MAP[*p as usize][m.r as usize], bitseg);
 
             // If empty row on piece map
             if bitseg == 0 {
@@ -67,7 +68,7 @@ impl Board {
                 panic!("@ Field.apply_move: out of board on bottom edge");
             }
             // If out of board on left edge
-            if c_x < 0 && bitseg & (1 << (-c_x) - 1) > 0  {
+            if c_x < 0 && bitseg & ((1 << (-c_x)) - 1) > 0  {
                 panic!("@ Field.apply_move: out of board on left edge");
             }
             // Shift according to c_x
