@@ -1,4 +1,4 @@
-use tetron::{solve, Piece, State, EvaluatorMode};
+use tetron::{solve, Piece, State, EvaluatorMode, config};
 
 use std::time::Instant;
 use std::{thread, time::Duration};
@@ -37,6 +37,7 @@ pub fn sandbox_bench_fn () -> u128 {
  */
 
 pub fn sandbox_run (iters: u32, mode: Option<EvaluatorMode>) {
+    let mode = mode.unwrap_or_else(|| EvaluatorMode::Norm);
     const SANDBOX_DELAY: u64 = 0;
 
     let mut state = State::new();
@@ -63,7 +64,7 @@ pub fn sandbox_run (iters: u32, mode: Option<EvaluatorMode>) {
         // Solve & Bench
         tetron::bench_increment_solve();
         let start = Instant::now();        
-        if let Some(out) = solve(&state, 3, mode) {
+        if let Some(out) = solve(&state, &config::Config::new(3, mode)) {
             let dt = start.elapsed().as_micros();
             total_dt += dt as f64 / 1_000_000.0;
             avg_dt = if avg_dt == 0 {dt} else {(avg_dt + dt) / 2};

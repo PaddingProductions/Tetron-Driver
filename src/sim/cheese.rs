@@ -1,4 +1,4 @@
-use tetron::{solve, Piece, State, EvaluatorMode};
+use tetron::{solve, Piece, State, EvaluatorMode, config};
 
 use std::time::Instant;
 use std::io::{self, Write};
@@ -35,7 +35,7 @@ fn run (lines: usize, log: bool) -> (u32, f32, u128) {
         
         // Solve & Bench
         let start = Instant::now();        
-        if let Some(out) = solve(&state, 3, Some(EvaluatorMode::DS)) {
+        if let Some(out) = solve(&state, &config::Config::new(3, EvaluatorMode::DS)) {
             let dt = start.elapsed().as_micros();
             total_dt += dt as f32 / 1_000_000.0;
             avg_dt = if avg_dt == 0 {dt} else {(avg_dt + dt) / 2};

@@ -1,4 +1,4 @@
-use tetron::{solve, Piece, State, EvaluatorMode};
+use tetron::{solve, Piece, State, EvaluatorMode, config};
 
 use std::time::Instant;
 
@@ -28,7 +28,7 @@ fn run (pieces: usize, log: bool) -> (u32, f32) {
         
         // Solve & Bench
         let start = Instant::now();        
-        if let Some(mut out) = solve(&state, 3, Some(EvaluatorMode::Norm)) {
+        if let Some(mut out) = solve(&state, &config::Config::new(3, EvaluatorMode::Norm)) {
             // Benching
             let dt = start.elapsed().as_micros();
             total_dt += dt as f32 / 1_000_000.0;

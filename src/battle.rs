@@ -29,7 +29,7 @@ pub fn battle () {
     let handle = thread::spawn(move || {
         loop {
             if let Some((state, mut board)) = rx1.recv().unwrap() {
-                if let Some(out) = tetron::solve(&state, 3, None) {
+                if let Some(out) = tetron::solve(&state, &config::Config::new(3, EvaluatorMode::Norm)) {
                     board.apply_move(
                         &out.1, 
                         &state.pieces[0], 
