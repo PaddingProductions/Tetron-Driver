@@ -50,12 +50,12 @@ pub fn sandbox_run (iters: u32, mode: Option<EvaluatorMode>) {
     
     let mut atks: u32 = 0;
     let mut total_dt = 0.0;
-    let mut avg_dt = 0;
+    let mut avg_dt: u128 = 0;
     while state.pieces.len() < 6 {
         state.pieces.push_back(super::draw(&mut bag));
     }
     println!("init state:\n{}", state);
-    for _ in 0..iters {
+    for i in 0..iters {
         // Draw pieces
         while state.pieces.len() < 6 {
             state.pieces.push_back(super::draw(&mut bag));
@@ -67,7 +67,7 @@ pub fn sandbox_run (iters: u32, mode: Option<EvaluatorMode>) {
         if let Some(out) = solve(&state, &config::Config::new(3, mode)) {
             let dt = start.elapsed().as_micros();
             total_dt += dt as f64 / 1_000_000.0;
-            avg_dt = if avg_dt == 0 {dt} else {(avg_dt + dt) / 2};
+            avg_dt = (i as u128 * avg_dt + dt) / (i + 1) as u128;
 
             println!("Time consumed: {}{}{}us", BLD, dt, RST);
             println!("Avg benchmark: {}{}{}us", BLD, avg_dt, RST);

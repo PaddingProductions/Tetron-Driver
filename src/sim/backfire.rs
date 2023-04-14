@@ -20,7 +20,7 @@ fn run (pieces: usize, log: bool) -> (u32, f32) {
         state.pieces.push_back(super::draw(&mut bag));
     }
     println!("{}", board);
-    for _ in 0..pieces {
+    for i in 0..pieces {
         // Draw pieces
         while state.pieces.len() < 6 {
             state.pieces.push_back(super::draw(&mut bag));
@@ -32,7 +32,7 @@ fn run (pieces: usize, log: bool) -> (u32, f32) {
             // Benching
             let dt = start.elapsed().as_micros();
             total_dt += dt as f32 / 1_000_000.0;
-            avg_dt = if avg_dt == 0 {dt} else {(avg_dt + dt) / 2};
+            avg_dt = (i as u128 * avg_dt + dt) / (i + 1) as u128;
 
             // Apply move to colored board
             board.apply_move(
@@ -86,22 +86,25 @@ pub fn backfire_exam (iter: usize, pieces: usize, log: bool) {
         let apm: f64 = atk as f64 / (total_dt / 60.0) as f64;
         let pps: f64 = pieces as f64 / total_dt as f64;
 
-        apm_res.0 = if apm_res.0 == 0.0 {apm as f64} else {(apm_res.0 + apm as f64) / 2.0};
+        apm_res.0 += apm as f64;
         apm_res.1 = apm_res.1.max(apm);
         apm_res.2 = apm_res.2.min(apm);
 
-        atk_res.0 = if atk_res.0 == 0.0 {atk as f64} else {(atk_res.0 + atk as f64) / 2.0};
+        atk_res.0 += atk as f64; 
         atk_res.1 = atk_res.1.max(atk);
         atk_res.2 = atk_res.2.min(atk);
 
-        time_res.0 = if time_res.0 == 0.0 {total_dt} else {(time_res.0 + total_dt) / 2.0};
+        time_res.0 += total_dt; 
         time_res.1 = time_res.1.max(total_dt);
         time_res.2 = time_res.2.min(total_dt);
 
         avg_pps = if avg_pps == 0.0 {pps} else {(avg_pps + pps) / 2.0};
-
         println!("{BLD}Results{RST}: apm: {HLT}{}{RST}, atk: {BLD}{}{RST}, time: {BLD}{:.2}{RST}", apm, atk, total_dt);
     }
+    apm_res.0  /= iter as f64;
+    atk_res.0  /= iter as f64;
+    time_res.0 /= iter as f32;
+
     let app_res = 
         (atk_res.0 as f32 / pieces as f32, atk_res.1  as f32/ pieces as f32, atk_res.2 as f32/ pieces as f32);
     println!("{BLD}=== Final Results ==={RST}:");

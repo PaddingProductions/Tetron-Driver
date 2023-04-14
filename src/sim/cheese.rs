@@ -14,7 +14,7 @@ fn run (lines: usize, log: bool) -> (u32, f32, u128) {
     // Gen cheese 
     let mut cheese_row = 10.min(lines);
     let mut cheese_clears = 0;
-    let mut piece_cnt: u32 = 0;
+    let mut piece_cnt: u128 = 0;
     for _ in (20 - lines.min(10))..20 {
         super::gen_garbage(&mut state.field, &mut board, 1);
     }
@@ -38,7 +38,7 @@ fn run (lines: usize, log: bool) -> (u32, f32, u128) {
         if let Some(out) = solve(&state, &config::Config::new(3, EvaluatorMode::DS)) {
             let dt = start.elapsed().as_micros();
             total_dt += dt as f32 / 1_000_000.0;
-            avg_dt = if avg_dt == 0 {dt} else {(avg_dt + dt) / 2};
+            avg_dt = (avg_dt * piece_cnt + dt) / (piece_cnt + 1);
 
             // Apply move to colored board
             board.apply_move(&out.1, &state.pieces[0], if state.hold == Piece::None {&state.pieces[1]} else {&state.hold});
@@ -76,7 +76,7 @@ fn run (lines: usize, log: bool) -> (u32, f32, u128) {
         piece_cnt += 1;
     }
     println!();
-    (piece_cnt, total_dt, avg_dt)
+    (piece_cnt as u32, total_dt, avg_dt)
 }
 
 pub fn cheese_exam (iter: usize, lines: usize, log: bool) {
@@ -93,11 +93,11 @@ pub fn cheese_exam (iter: usize, lines: usize, log: bool) {
         let (pieces, total_dt, avg_dt) = run(lines, log);
         let pps: f64 = 1.0 / (avg_dt as f64 / 1_000_000.0);
 
-        pieces_res.0 = if pieces_res.0 == 0.0 {pieces as f64} else {(pieces_res.0 + pieces as f64) / 2.0};
+        pieces_res.0 += pieces as f64;
         pieces_res.1 = pieces_res.1.max(pieces);
         pieces_res.2 = pieces_res.2.min(pieces);
 
-        time_res.0 = if time_res.0 == 0.0 {total_dt} else {(time_res.0 + total_dt) / 2.0};
+        time_res.0 += total_dt;
         time_res.1 = time_res.1.max(total_dt);
         time_res.2 = time_res.2.min(total_dt);
 
@@ -105,6 +105,9 @@ pub fn cheese_exam (iter: usize, lines: usize, log: bool) {
 
         println!("{BLD}Results{RST}: pieces: {HLT}{}{RST}, time: {BLD}{}{RST}, pps: {BLD}{:.2}{RST}", pieces, total_dt, pps);
     }
+    pieces_res.0 /= iter as f64;
+    time_res.0   /= iter as f32;
+
     println!("{BLD}Final Results{RST}:");
     println!("avg pieces: {HLT}{}{RST}, worst: {HLT}{}{RST}, best: {BLD}{}{RST}", pieces_res.0, pieces_res.1, pieces_res.2);
     println!("avg time: {HLT}{}{RST}, worst: {HLT}{}{RST}, best: {BLD}{}{RST}", time_res.0, time_res.1, time_res.2);
