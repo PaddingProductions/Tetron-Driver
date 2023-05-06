@@ -1,5 +1,8 @@
 use tetron::{solve, Piece, State, EvaluatorMode, config};
 
+use rand::prelude::*;
+use rand_chacha::ChaCha8Rng;
+
 use std::time::Instant;
 use std::io::{self, Write};
 
@@ -10,13 +13,13 @@ use crate::colors::*;
 fn run (lines: usize, log: bool) -> (u32, f32, u128) {
     let mut state = State::new();
     let mut board = Board::new(Some(&state.field));
-
+    let mut rng   = ChaCha8Rng::seed_from_u64(2);
     // Gen cheese 
     let mut cheese_row = 10.min(lines);
     let mut cheese_clears = 0;
     let mut piece_cnt: u128 = 0;
     for _ in (20 - lines.min(10))..20 {
-        super::gen_garbage(&mut state.field, &mut board, 1);
+        super::gen_garbage(&mut rng, &mut state.field, &mut board, 1);
     }
 
     let mut bag = vec![];
@@ -24,13 +27,13 @@ fn run (lines: usize, log: bool) -> (u32, f32, u128) {
     let mut avg_dt: u128 = 0;
     let mut total_dt: f32 = 0.0;
     while state.pieces.len() < 6 {
-        state.pieces.push_back(super::draw(&mut bag));
+        state.pieces.push_back(super::draw(&mut rng, &mut bag));
     }
     println!("{}", board);
     while cheese_clears < lines {
         // Draw pieces
         while state.pieces.len() < 6 {
-            state.pieces.push_back(super::draw(&mut bag));
+            state.pieces.push_back(super::draw(&mut rng, &mut bag));
         }
         
         // Solve & Bench
@@ -63,7 +66,7 @@ fn run (lines: usize, log: bool) -> (u32, f32, u128) {
             // Spawn Chese 
             if out.0.props.clears == 0 && cheese_row < 10 && cheese_clears + cheese_row < lines {
                 while cheese_row < 10 {
-                    super::gen_garbage(&mut state.field, &mut board, 1);
+                    super::gen_garbage(&mut rng, &mut state.field, &mut board, 1);
                     cheese_row += 1;
                 }
             }

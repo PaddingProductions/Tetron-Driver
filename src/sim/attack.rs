@@ -1,12 +1,16 @@
 use tetron::{solve, Piece, State, EvaluatorMode, config};
 use std::time::Instant;
 
+use rand::prelude::*;
+use rand_chacha::ChaCha8Rng;
+
 use crate::board::Board;
 use crate::colors::*;
 
 fn run (pieces: usize, log: bool) -> (u32, f32) {
     let mut state = State::new();
     let mut board = Board::new(Some(&state.field));
+    let mut rng   = ChaCha8Rng::seed_from_u64(2);
 
     let mut total_atk: u32 = 0;
 
@@ -15,13 +19,13 @@ fn run (pieces: usize, log: bool) -> (u32, f32) {
     let mut avg_dt: u128 = 0;
     let mut total_dt: f32 = 0.0;
     while state.pieces.len() < 6 {
-        state.pieces.push_back(super::draw(&mut bag));
+        state.pieces.push_back(super::draw(&mut rng, &mut bag));
     }
     println!("{}", board);
     for i in 0..pieces {
         // Draw pieces
         while state.pieces.len() < 6 {
-            state.pieces.push_back(super::draw(&mut bag));
+            state.pieces.push_back(super::draw(&mut rng, &mut bag));
         }
         
         // Solve & Bench

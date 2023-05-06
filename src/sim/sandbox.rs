@@ -1,5 +1,8 @@
 use tetron::{solve, Piece, State, EvaluatorMode, config};
 
+use rand::prelude::*;
+use rand_chacha::ChaCha8Rng;
+
 use std::time::Instant;
 use std::{thread, time::Duration};
 use crate::board::*;
@@ -47,18 +50,19 @@ pub fn sandbox_run (iters: u32, mode: Option<EvaluatorMode>) {
 
     let mut board = Board::new(Some(&state.field));
     let mut bag = vec![];
+    let mut rng   = ChaCha8Rng::seed_from_u64(2);
     
     let mut atks: u32 = 0;
     let mut total_dt = 0.0;
     let mut avg_dt: u128 = 0;
     while state.pieces.len() < 6 {
-        state.pieces.push_back(super::draw(&mut bag));
+        state.pieces.push_back(super::draw(&mut rng, &mut bag));
     }
     println!("init state:\n{}", state);
     for i in 0..iters {
         // Draw pieces
         while state.pieces.len() < 6 {
-            state.pieces.push_back(super::draw(&mut bag));
+            state.pieces.push_back(super::draw(&mut rng, &mut bag));
         }
 
         // Solve & Bench

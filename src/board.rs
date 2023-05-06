@@ -1,5 +1,5 @@
 use tetron::{Piece, Move, Field};
-use tetron::field::{PIECE_MAP, reverse_bin};
+use tetron::field::PIECE_MAP;
 use crate::colors::*;
 use std::fmt;
 
@@ -43,16 +43,15 @@ impl Board {
     
     pub fn apply_move (self: &mut Self, m: &Move, piece: &Piece, hold: &Piece) {
         let p = if m.hold {hold} else {piece};
-        let map: &u32 = &PIECE_MAP[*p as usize][m.r as usize];
+        let map: &[u16; 5] = &PIECE_MAP[*p as usize][m.r as usize];
         let n: i8 = if *p == Piece::I {5} else {3};
         let c_x: i8 = m.x - n/2;
         let c_y: i8 = m.y - n/2;
-        let mask = (1 << n) - 1;
         
         for y in 0..n {
             // The bits representing a single row of the piece map
-            let shift: u8 = (n * (n - 1 - y)) as u8;
-            let bitseg: u16 = reverse_bin( (( map & (mask << shift) ) >> shift) as u16 , n as u8 );
+            let bitseg: u16 = map[y as usize].reverse_bits() >> (16 - n);
+            // UNLEASH LATER :biflush: let bitseg: u16 = PIECE_MAP[*p as usize][m.r as usize][y as usize].reverse_bits() >> (16 - n);
             //println!("c_x: {c_x}, map: {:09b}, bitseg: {:05b}\r", PIECE_MAP[*p as usize][m.r as usize], bitseg);
 
             // If empty row on piece map

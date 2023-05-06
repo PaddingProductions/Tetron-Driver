@@ -2,20 +2,21 @@ use tetron::{Field, Piece, State};
 use crate::board::Board;
 use crate::colors::*;
 
-use rand::Rng;
+use rand::prelude::*;
+use rand_chacha::ChaCha8Rng;
 
-mod cheese;
-mod attack;
-mod sandbox;
-mod backfire;
+pub mod cheese;
+pub mod attack;
+pub mod sandbox;
+pub mod backfire;
+pub mod bencher;
 
 pub use sandbox::sandbox_run;
 pub use cheese::cheese_exam;
 pub use attack::attack_exam;
 pub use backfire::backfire_exam;
 
-
-pub fn draw (bag: &mut Vec<Piece>) -> Piece {
+pub fn draw (rng: &mut ChaCha8Rng, bag: &mut Vec<Piece>) -> Piece {
     if bag.is_empty() {
         bag.push(Piece::J);
         bag.push(Piece::L);
@@ -25,16 +26,15 @@ pub fn draw (bag: &mut Vec<Piece>) -> Piece {
         bag.push(Piece::I);
         bag.push(Piece::O);
     }
-    let i = rand::thread_rng().gen_range(0..bag.len());
+    let i = rng.gen_range(0..bag.len());
     let p = bag.remove(i);
     p
 }
 
-pub fn gen_garbage (field: &mut Field, board: &mut Board, lines: usize) {
+pub fn gen_garbage (rng: &mut ChaCha8Rng, field: &mut Field, board: &mut Board, lines: usize) {
     let lines = lines.min(10);
     static mut PREV: u8 = 0;
 
-    let mut rng = rand::thread_rng();
     let i: u8 = unsafe {
         let mut i: u8 = PREV;
         while i == PREV { i = rng.gen_range(0..10); }

@@ -2,12 +2,17 @@ use tetron::{solve, Piece, State, EvaluatorMode, config};
 
 use std::time::Instant;
 
+use rand::prelude::*;
+use rand_chacha::ChaCha8Rng;
+
+
 use crate::board::Board;
 use crate::colors::*;
 
 fn run (pieces: usize, log: bool) -> (u32, f32) {
     let mut state = State::new();
     let mut board = Board::new(Some(&state.field));
+    let mut rng   = ChaCha8Rng::seed_from_u64(2);
 
     let mut inc_garbage: u32 = 0;
     let mut total_atk: u32 = 0;
@@ -17,13 +22,13 @@ fn run (pieces: usize, log: bool) -> (u32, f32) {
     let mut avg_dt: u128 = 0;
     let mut total_dt: f32 = 0.0;
     while state.pieces.len() < 6 {
-        state.pieces.push_back(super::draw(&mut bag));
+        state.pieces.push_back(super::draw(&mut rng, &mut bag));
     }
     println!("{}", board);
     for i in 0..pieces {
         // Draw pieces
         while state.pieces.len() < 6 {
-            state.pieces.push_back(super::draw(&mut bag));
+            state.pieces.push_back(super::draw(&mut rng, &mut bag));
         }
         
         // Solve & Bench
@@ -43,7 +48,7 @@ fn run (pieces: usize, log: bool) -> (u32, f32) {
             // Spawn backfire 
             inc_garbage += out.0.props.atk as u32;
             if out.0.props.atk == 0 && inc_garbage > 0 {
-                super::gen_garbage(&mut out.0.field, &mut board, inc_garbage as usize);
+                super::gen_garbage(&mut rng, &mut out.0.field, &mut board, inc_garbage as usize);
                 inc_garbage -= inc_garbage.min(10);
             } 
             

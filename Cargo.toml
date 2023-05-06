@@ -8,4 +8,5 @@ edition = "2021"
 [dependencies]
 tetron = {path = "../tetron"}
 rand = "0.8.5"
+rand_chacha = "0.3.1"
 crossterm = "0.25.0"

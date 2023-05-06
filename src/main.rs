@@ -1,6 +1,5 @@
 mod board;
 mod sim;
-mod battle;
 
 use tetron::*;
 
@@ -32,13 +31,20 @@ use crate::colors::*;
 
 
 fn main() {
+    // If running bencher
+    for arg in std::env::args() {
+        if arg.as_str() == "--bench" {
+            sim::bencher::run();
+            return;
+        }
+    }
+
     println!("{HLT}==={{ Tetron CLI }}==={RST}");
     println!("\n{BLD}Commands:{RST}");
     println!("=> sandbox <mode: [{BLD}norm{RST}, atk, ds]> <(num)pieces ={BLD}100{RST}>");
     println!("=> cheese_exam <(num)iters ={BLD}40{RST}> <(num)lines ={BLD}40{RST}> <opts: [log]>");
     println!("=> attack_exam <(num)iters ={BLD}5{RST}> <(num)pieces ={BLD}100{RST}> <opts: [log]>");
     println!("=> backfire_exam <(num)iters ={BLD}2{RST}> <(num)pieces ={BLD}100{RST}> <opts: [{BLD}log{RST}]>");
-    println!("=> vs ## {BLD} LEGACY {RST} ##");
 
     loop {
         let mut buf = String::new();
@@ -59,9 +65,6 @@ fn main() {
         
         println!("command: {buf}. args: {:?}", args);
         match args[0] {
-            "vs" => {
-                battle::battle();
-            }
             "sandbox" => {
                 let mode = if args.len() < 2 {EvaluatorMode::Norm} else {match args[1] {
                     "atk" => EvaluatorMode::Attack,
